@@ -66,12 +66,24 @@ router.delete("/:id", async (req, res) => {
 router.put("/:id", async (req, res) => {
   const id = req.params.id;
   const { name, age, type, breed, microchip } = req.body;
-  const values = [name, age, type, breed, microchip];
+  const values = [name, age, type, breed, microchip, id];
   const query = `UPDATE pets SET name=$1, age=$2, type=$3, breed=$4, microchip=$5 
-    WHERE id=${id} RETURNING *`;
+        WHERE id=$6 RETURNING *`;
 
   const result = await db.query(query, values);
-  res.json({ pet: result.rows[0] });
+  if (result.rows.length === 1) {
+    res.json({ pet: result.rows[0] });
+  } else {
+    res.status(404).json(`error: pet with ID=${id} does not exist`);
+  }
+  //   res.body === {}
+  //     ? res.status(500).json("error: pet does not exist")
+  //     : res.json("Sve your changes");
+  //   if (req.body === {}) {
+  //     res.status(500).json("error: pet does not exist");
+  //   }
+  //   500 is when the data base broken
+  //   400 bad request
 });
 
 module.exports = router;

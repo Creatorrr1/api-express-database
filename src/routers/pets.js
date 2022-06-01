@@ -54,4 +54,24 @@ router.post("/", async (req, res) => {
   res.json({ pet: result.rows[0] });
 });
 
+router.delete("/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = `DELETE FROM pets WHERE id=${id} RETURNING *`;
+
+  const result = await db.query(query);
+
+  res.json({ pet: result.rows[0] });
+});
+
+router.put("/:id", async (req, res) => {
+  const id = req.params.id;
+  const { name, age, type, breed, microchip } = req.body;
+  const values = [name, age, type, breed, microchip];
+  const query = `UPDATE pets SET name=$1, age=$2, type=$3, breed=$4, microchip=$5 
+    WHERE id=${id} RETURNING *`;
+
+  const result = await db.query(query, values);
+  res.json({ pet: result.rows[0] });
+});
+
 module.exports = router;

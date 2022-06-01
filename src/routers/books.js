@@ -47,13 +47,26 @@ router.post("/", async (req, res) => {
   res.json({ book: result.rows[0] });
 });
 
-// books: result.rows[0]
-// if (type && topic) {
-//     sqlString += ` WHERE type = '${type}' AND topic = '${topic}';`
-//   } else if (type) {
-//     sqlString += ` WHERE type = '${type}';`
-//   } else if (topic) {
-//     sqlString += ` WHERE topic = '${topic}';`
-//   }
+router.delete("/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = `DELETE FROM books WHERE id=${id} RETURNING *`;
+
+  const result = await db.query(query);
+
+  res.json({ book: result.rows[0] });
+});
+
+router.put("/:id", async (req, res) => {
+  const id = req.params.id;
+  const { title, type, author, topic, publicationDate } = req.body;
+  const values = [title, type, author, topic, publicationDate];
+  const query = `UPDATE books
+    SET title=$1, type=$2, author=$3, topic=$4, publicationDate=$5
+    WHERE id=${id}
+    RETURNING *`;
+
+  const result = await db.query(query, values);
+  res.json({ book: result.rows[0] });
+});
 
 module.exports = router;
